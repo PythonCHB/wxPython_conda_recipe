@@ -1,0 +1,28 @@
+# Note: this recipe simply downloads and installs the binary wheels built by the project.
+
+package:
+  name: wxpython-phoenix
+  version: 3.0.2.0
+
+build:
+  number: 0
+
+  skip: True  # [win]
+  skip: True  # [linux]
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+
+test:
+    imports:
+        - wx
+
+about:
+  home: http://www.wxpython.org/
+  license: wxWindows License
+  summary: '*new* Python wrapper around the wxWidgets Cross platform Graphical User Interface library'
