@@ -2,7 +2,7 @@
 
 package:
   name: wxpython-phoenix
-  version: 3.0.2.0
+  version: 3.0.3
 
 build:
   number: 0
