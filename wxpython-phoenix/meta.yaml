@@ -1,14 +1,17 @@
 # Note: this recipe simply downloads and installs the binary wheels built by the project.
+#       This means it used statically linked versions of libs that it could get from conda
+
+# There are curretnly only development snapshots available
+{% set version = "3.0.3.dev2832" %}
 
 package:
   name: wxpython-phoenix
-  version: 3.0.3.dev2832
+  version:  {{ version }}
 
 build:
-  number: 0
-
-  skip: True  # [win]
-  skip: True  # [linux]
+  number: 1
+  script: pip install -U --pre --trusted-host wxpython.org -f http://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix=={{ version }} # [osx or win32 or win64]
+  script: pip install -U --pre --trusted-host wxpython.org -f http://wxpython.org/Phoenix/snapshot-builds/linux/gtk2/fedora-24 wxPython_Phoenix=={{ version }} # [linux64]
 
 requirements:
   build:
