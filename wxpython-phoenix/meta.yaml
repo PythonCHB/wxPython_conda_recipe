@@ -1,8 +1,12 @@
 # Note: this recipe simply downloads and installs the binary wheels built by the project.
+#       This means it used statically linked versions of libs that it could get from conda
+
+# There are curretnly only development snapshots available
+{% set version = "3.0.3.dev2832" %}
 
 package:
   name: wxpython-phoenix
-  version: 3.0.3
+  version:  {{ version }}
 
 build:
   number: 0
