@@ -5,13 +5,16 @@
 pkgname='wxPython_Phoenix'
 pip_opts='--pre --trusted-host wxpython.org -f http://wxpython.org/Phoenix/snapshot-builds/'
 
+pkgname='wxPython'
+pip_opts=''
+
 osname=`uname -s`
 
 ## for Darwin, we can just do install on the fetched binary wheel,
-if [[ "$osname" == 'Darwin' ]] ; then
+if [[ "$osname" == Darwin ]] ; then
     pip install -U $pip_opts $pkgname
 
-elif [[ "$osname" == 'Linux' ]] ; then
+elif [[ "$osname" == Linux ]] ; then
 
     ## for Linux, this fetched a source tarball that we now need to build.
     ##
