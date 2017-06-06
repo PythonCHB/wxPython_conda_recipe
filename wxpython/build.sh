@@ -24,19 +24,19 @@ elif [[ "$osname" == Linux ]] ; then
     ##     freeglut freeglut-devel
     ##     libnotify libnotify-devel
     ##     libtiff libtiff-devel
-    ##     libjpeg lbibjpeg-devel
+    ##     libjpeg libjpeg-devel
     ##     SDL SDL-devel
-    ##     gstreamermm gstreamermm-devel
+    ##     gstreamer gstreamer-devel gstreamer-plugins-*
 
-    $pip_cmd download $pip_opts $pkgname
+    $pip_cmd download $pkgname
 
     dirname=`ls | grep wxPython | sed 's/.tar.gz//g'`
     tar xvzf $dirname.tar.gz
     cd $dirname
 
     # custom complier flags and libs from gstreamer:
-    export GST_LIBS=`pkg-config gstreamer-0.10 --libs`
-    export GST_CFLAGS=`pkg-config gstreamer-0.10 --cflags`
+    export GST_LIBS=`pkg-config gstreamer-1.0 --libs`
+    export GST_CFLAGS=`pkg-config gstreamer-1.0 --cflags`
 
     # we need to make the right sure libiconv is found for wxrc
     python build.py dox etg --nodoc sip
