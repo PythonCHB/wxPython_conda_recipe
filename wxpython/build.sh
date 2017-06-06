@@ -1,76 +1,49 @@
 #!/bin/bash
 
-# build script for Linux -- gotten from:
-# https://github.com/conda/conda-recipes
-# this particular build has not been tested (by me, anyway)
+## install wxPython from PyPI source or wheel
 
-mkdir -vp ${PREFIX}/bin;
+pkgname='wxPython'
+pip_cmd='pip' #  $CONDA_PREFIX/bin/pip
+pip_opts='-U' #  --force-reinstall --no-cache-dir'
+osname=`uname -s`
 
-ARCH="$(uname 2>/dev/null)"
+## for Darwin, we can just do install on the fetched binary wheel,
+if [[ "$osname" == Darwin ]] ; then
+    $pip_cmd install $pip_opts $pkgname
 
-export CFLAGS="-m64 -pipe -O2 -march=x86-64 -fPIC"
-export CXXLAGS="${CFLAGS}"
-#export CPPFLAGS="-I${PREFIX}/include"
-#export LDFLAGS="-L${PREFIX}/lib64"
+elif [[ "$osname" == Linux ]] ; then
 
-LinuxInstallation() {
-    # Build dependencies:
-    # - gtk+-devel
-    # - gtk+extra-devel
-    # - gtk2-devel
-    # - gtk2-engines-devel
-    # - gtkglext-devel
-    # - gtkmm24-devel
-    # - wxGTK-devel
-    # - wxBase
-    # - SDL-devel
-    # - gstreamer-devel
-    # - gstreamer-plugins-base-devel
+    ## for Linux, this fetched a source tarball that we now need to build.
+    ##
+    ## this follows build instructions using Fedora,
+    ## which need the following packages installed:
+    ##
+    ## (sudo dnf/yum install)
+    ##     dpkg  python-devel
+    ##     webkitgtk webkitgtk-devel
+    ##     freeglut freeglut-devel
+    ##     libnotify libnotify-devel
+    ##     libtiff libtiff-devel
+    ##     libjpeg lbibjpeg-devel
+    ##     SDL SDL-devel
+    ##     gstreamermm gstreamermm-devel
 
-    chmod +x configure;
+    $pip_cmd download $pip_opts $pkgname
 
-    ./configure \
-        --enable-utf8 \
-        --enable-sound \
-        --enable-unicode \
-        --enable-monolithic \
-        --enable-rpath='$ORIGIN/../lib' \
-        --with-gtk \
-        --with-sdl \
-        --with-expat=builtin \
-        --with-libjpeg=builtin \
-        --with-libpng=builtin \
-        --with-libtiff=builtin \
-        --with-regex=builtin \
-        --with-zlib=builtin \
-        --prefix="${PREFIX}" || return 1;
-    make || return 1;
-    make install || return 1;
+    dirname=`ls | grep wxPython | sed 's/.tar.gz//g'`
+    tar xvzf $dirname.tar.gz
+    cd $dirname
 
-    pushd wxPython/;
-    ${PYTHON} -u ./setup.py install UNICODE=1 BUILD_BASE=build WX_CONFIG="${PREFIX}/bin/wx-config --prefix=${PREFIX}" \
-        --record installed_files.txt --prefix="${PREFIX}" || return 1;
-    popd;
+    # custom complier flags and libs from gstreamer:
+    export GST_LIBS=`pkg-config gstreamer-0.10 --libs`
+    export GST_CFLAGS=`pkg-config gstreamer-0.10 --cflags`
 
-    rm ${PREFIX}/bin/wx-config || return 1;
+    # we need to make the right sure libiconv is found for wxrc
+    python build.py dox etg --nodoc sip
+    python build.py build --extra_make='LIBS=-L$CONDA_PREFIX/lib -liconv'
+    python build.py build_py
+    python setup.py install
 
-    pushd ${PREFIX};
-    ln -vs ../lib/wx/config/inplace-gtk2-unicode-3.0 wx-config || return 1;
-    popd;
-
-    return 0;
-}
-
-case ${ARCH} in
-    'Linux')
-        LinuxInstallation || exit 1;
-        ;;
-    *)
-        echo -e "Unsupported machine type: ${ARCH}";
-        exit 1;
-        ;;
-esac
-
-#POST_LINK="${PREFIX}/bin/.wxpython-post-link.sh"
-#cp -v ${RECIPE_DIR}/post-link.sh ${POST_LINK};
-#chmod -v 0755 ${POST_LINK};
+    # now copy the libwx* files from site-packages/wx to lib
+    cp -pr $SP_DIR/wx/libwx* $CONDA_PREFIX/lib/.
+fi
