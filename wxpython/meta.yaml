@@ -1,28 +1,34 @@
 package:
-  name: wxpython
-  version: 3.0.2.0
-
-source:
-  fn: wxPython-src-3.0.2.0.tar.bz2
-  url: http://sourceforge.net/projects/wxpython/files/wxPython/3.0.2.0/wxPython-src-3.0.2.0.tar.bz2
+   name: wxpython
+   version: 4.0.0a3
 
 build:
-  number: 0
-
-  script: $RECIPE_DIR/build_osx.sh #[osx]
-  script: $RECIPE_DIR/build.sh #[linux]
-  skip: True  #[win]
-  skip: True  #[linux]
-  skip: True  #[osx] # until I get the build errors figured out
-
+   number: 1
+   script: pip install -U wxPython # [win or osx]
+   script: $RECIPE_DIR/build.sh # [linux]
+   binary_relocation: True
 
 requirements:
   build:
-    - python >=2.7,<3
+    - python
     - setuptools
+    - pip
+    - requests
+    - six >=0.10.0
+    - libxml2 # [osx or linux]
+    - libiconv # [linux]
+    - libgcc >=5.1 # [linux]
+    - pango >=1.40 # [linux]
 
   run:
     - python
+    - six
+    - requests
+    - six >=0.10.0
+    - libxml2 # [osx or linux]
+    - libiconv # [linux]
+    - libgcc >=5.1 # [linux]
+    - pango >=1.40 # [linux]
 
 test:
     imports:
